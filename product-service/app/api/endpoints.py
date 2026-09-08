@@ -1,5 +1,7 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Body, Depends, Path, HTTPException, status
+from fastapi.responses import JSONResponse
 
 from database.models import Product
 from database.schemas import ProductCreate, ProductRead, ProductUpdate
@@ -28,6 +30,15 @@ async def update_data_product(
     """Обновляем данные товара"""
 
     return await product_service.update(id=product_id, update_model=product)
+
+
+@router.delete("/products/{product_id}")
+async def delete_product(
+    product_id: Annotated[int, Path()],
+    product_service: Annotated[ProductService, Depends(get_product_service)]) -> JSONResponse:
+    """Удаляем товар по id"""
+    await product_service.delete(product_id)
+    return JSONResponse(content={"message": "Success"})
 
 
 @router.get("/products", response_model=list[ProductRead])

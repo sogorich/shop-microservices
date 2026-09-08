@@ -31,5 +31,5 @@ class IRepository(ABC):
         ...
 
     @abstractmethod
-    async def delete(self):
+    async def delete(self, id: int) -> bool:
         ...

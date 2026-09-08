@@ -1,6 +1,5 @@
-from fastapi import HTTPException, status
-
 from .interfaces import IService
+from .utils import get_404_exception
 
 from database.models import Product
 from database.schemas import ProductCreate, ProductUpdate
@@ -31,7 +30,7 @@ class ProductService(IService):
         product = await self.get_one(id=id)
 
         if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Не найдено!")
+            raise get_404_exception()
 
         product_data = update_model.model_dump(exclude_unset=True)
         updated_product = await self._repo.update(id=product.id, data=product_data)
@@ -41,5 +40,11 @@ class ProductService(IService):
 
         return updated_product
 
-    async def delete(self):
-        ...
+    async def delete(self, id: int) -> bool:
+        delete_result = await self._repo.delete(id)
+
+        if not delete_result:
+            raise get_404_exception()
+
+        await self._repo.get_db_session.commit()
+        return True

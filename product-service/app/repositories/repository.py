@@ -44,5 +44,11 @@ class ProductRepository(BaseRepository, IRepository):
         updated_object = await self.get_db_session.exec(statement)
         return updated_object.scalars().one()
 
-    async def delete(self):
-        ...
+    async def delete(self, id: int) -> bool:
+        product = await self.get_by_id(id)
+
+        if product:
+            await self.get_db_session.delete(product)
+            return True
+
+        return False
