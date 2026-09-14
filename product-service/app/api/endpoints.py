@@ -13,7 +13,7 @@ from .dependencies import get_product_service
 router = APIRouter(prefix="/api", tags=["Микросервис товаров и категорий"])
 
 
-@router.post("/products", response_model=ProductRead)
+@router.post("/products", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
 async def create_new_product(
     product: Annotated[ProductCreate, Body()],
     product_service: Annotated[ProductService, Depends(get_product_service)]) -> Product:

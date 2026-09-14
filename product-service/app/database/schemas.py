@@ -4,8 +4,6 @@ from .models import Category
 
 class ProductRead(SQLModel):
     """Схема для отображения данных о товаре"""
-    id: int
-
     title: str
     description: str
     photo_uri: str
