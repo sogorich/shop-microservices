@@ -2,7 +2,7 @@ from httpx import AsyncClient
 from conftest import async_client
 
 
-async def test_hello(async_client: AsyncClient):
+async def test_health_app(async_client: AsyncClient):
     response = await async_client.get("/health")
 
     assert response.status_code == 200
