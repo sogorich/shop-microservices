@@ -5,5 +5,7 @@ from main import app
 
 
 @pytest.fixture
-def async_client() -> AsyncClient:
-    return AsyncClient(transport=ASGITransport(app=app), base_url="http://")
+async def async_client():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://") as ac:
+        yield ac
