@@ -1,13 +1,14 @@
 import pytest
 
-from httpx import AsyncClient, ASGITransport
-from main import app
+from httpx import AsyncClient
+from conftest import async_client
 
 
 @pytest.mark.asyncio
-async def test_hello():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://") as ac:
-        response = await ac.get("/health")
+async def test_hello(async_client: AsyncClient):
+
+    async with async_client as client:
+        response = await client.get("/health")
 
     assert response.status_code == 200
     assert response.json() == {"message": "Microservice \"product-service\" is ready!"}
