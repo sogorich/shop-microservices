@@ -1,8 +1,8 @@
 from .interfaces import IService
 from .utils import get_404_exception
 
-from database.models import Product
-from database.schemas import ProductCreate, ProductUpdate
+from database.models import Category, Product
+from database.schemas import CategoryReadOrCreate, ProductCreate, ProductUpdate
 
 from repositories.interfaces import IRepository
 
@@ -56,3 +56,27 @@ class ProductService(BaseService, IService):
 
         await self.repo.get_db_session.commit()
         return True
+
+
+class CategoryService(BaseService, IService):
+    """Реализует контракт IService. Сервис для работы с моделью категорий"""
+    
+    async def get_one(self, id: int) -> Category | None:
+        return await self.repo.get_by_id(id)
+
+    async def create(self, payload: CategoryReadOrCreate) -> Category: 
+        new_category = await self.repo.create(payload)
+
+        await self.repo.get_db_session.commit()
+        await self.repo.get_db_session.refresh(new_category)
+
+        return new_category
+
+    async def get_all(self) -> list[Category]:
+        ...
+
+    async def update(self, id: int, update_model: Category) -> Category | None:
+        ...
+
+    async def delete(self, id: int) -> bool:
+        ...

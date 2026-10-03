@@ -41,3 +41,18 @@ async def test_update_product(
     assert res.title != mock_product_data["title"]
     assert res.title == "Новый"
 
+
+async def test_create_category(client: AsyncClient):
+    data = {
+        "title": "Категория с комментарием", 
+        "comment": "Какой-то поясняющий комментарий :)"
+    }
+
+    response = await client.post("/api/categories", json=data)
+
+    assert response.status_code == 201
+
+    assert response.json()["title"] == data["title"]
+    assert response.json()["comment"] == data["comment"]
+
+

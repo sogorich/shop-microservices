@@ -26,3 +26,9 @@ class ProductUpdate(SQLModel):
     description: str | None = None
     photo_uri: str | None = None
     price: int | None = None
+
+
+class CategoryReadOrCreate(SQLModel):
+    """Схема для отображения данных о категории"""
+    title: str
+    comment: str

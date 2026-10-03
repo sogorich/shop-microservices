@@ -106,5 +106,5 @@ async def get_id_created_product(client: AsyncClient, db_session: AsyncSession, 
 
     assert product is not None
     assert product.id > 0
-    print('[!!!] Я сработал!')
+   
     return product.id

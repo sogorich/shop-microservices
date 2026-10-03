@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Path, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from database.models import Product
-from database.schemas import ProductCreate, ProductRead, ProductUpdate
+from database.models import Category, Product
+from database.schemas import CategoryReadOrCreate, ProductCreate, ProductRead, ProductUpdate
 
-from services.service import ProductService
-from .dependencies import get_product_service
+from services.service import CategoryService, ProductService
+from .dependencies import get_category_service, get_product_service
 
 
 router = APIRouter(prefix="/api", tags=["Микросервис товаров и категорий"])
@@ -63,3 +63,28 @@ async def get_product_by_id(
             detail={"message": "Нет данных!"})
 
     return product
+
+
+@router.get("/categories/{category_id}", response_model=CategoryReadOrCreate, response_model_exclude={"comment"})
+async def get_category_by_id(
+    category_id: Annotated[int, Path()],
+    category_service: Annotated[CategoryService, Depends(get_category_service)]) -> Category:
+    """Получаем категорию по id"""
+
+    category = await category_service.get_one(category_id)
+
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail={"message": "Нет данных!"})
+
+    return category
+
+
+@router.post("/categories", response_model=CategoryReadOrCreate, status_code=status.HTTP_201_CREATED)
+async def create_new_category(
+    category: Annotated[CategoryReadOrCreate, Body()],
+    category_service: Annotated[CategoryService, Depends(get_category_service)]) -> Category:
+    """Создаем новую категорию"""
+
+    return await category_service.create(category)
