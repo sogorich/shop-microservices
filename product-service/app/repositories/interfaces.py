@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generic
 
+from database.generics import ModelT
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from database.models import Product
-from database.schemas import ProductCreate
 
-
-class IRepository(ABC):
+class IRepository(ABC, Generic[ModelT]):
     """Интерфейс, устанавливающий контракт на реализацию репозиториев"""
     @property
     @abstractmethod
@@ -15,7 +13,7 @@ class IRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: int) -> Product | None:
+    async def get_by_id(self, id: int) -> ModelT | None:
         ...
 
     @abstractmethod
@@ -23,11 +21,11 @@ class IRepository(ABC):
         ...
 
     @abstractmethod
-    async def create(self, payload: ProductCreate) -> Product:
+    async def create(self, payload: ModelT) -> ModelT:
         ...
 
     @abstractmethod
-    async def update(self, id: int, data: dict[str, Any]) -> Product:
+    async def update(self, id: int, data: dict[str, Any]) -> ModelT:
         ...
 
     @abstractmethod

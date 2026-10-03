@@ -1,25 +1,25 @@
 from abc import ABC, abstractmethod
+from typing import Generic
 
-from database.schemas import ProductCreate, ProductUpdate
-from database.models import Product
+from database.generics import ModelT
 
 
-class IService(ABC):
+class IService(ABC, Generic[ModelT]):
     """Интерфейс, устанавливающий контракт на реализацию сервисов"""
     @abstractmethod
-    async def get_one(self, id: int) -> Product | None:
+    async def get_one(self, id: int) -> ModelT | None:
         ...
 
     @abstractmethod
-    async def get_all(self) -> list[Product]:
+    async def get_all(self) -> list[ModelT]:
         ...
 
     @abstractmethod
-    async def create(self, payload: ProductCreate) -> Product:
+    async def create(self, payload: ModelT) -> ModelT:
         ...
 
     @abstractmethod
-    async def update(self, id: int, update_model: ProductUpdate) -> Product | None:
+    async def update(self, id: int, update_model: ModelT) -> ModelT | None:
         ...
 
     @abstractmethod
