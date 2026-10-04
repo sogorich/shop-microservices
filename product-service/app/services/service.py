@@ -1,32 +1,33 @@
+from typing import Generic, Type
+
 from .interfaces import IService
 from .utils import get_404_exception
 
-from database.models import Category, Product
-from database.schemas import CategoryReadOrCreate, ProductCreate, ProductUpdate
-
+from database.generics import ModelT
 from repositories.interfaces import IRepository
 
 
-class BaseService:
+class ORMService(IService, Generic[ModelT]):
     """Базовый сервис. Реализует основные атрибуты для всех сервисов"""
-    def __init__(self, repo: IRepository) -> None:
+    def __init__(self, model: Type[ModelT], repo: IRepository) -> None:
+        self._model = model
         self._repo = repo
 
     @property
     def repo(self) -> IRepository:
         return self._repo
 
+    @property
+    def model(self) -> Type[ModelT]:
+        return self._model
 
-class ProductService(BaseService, IService):
-    """Реализует контракт IService. Сервис для работы с моделью продуктов"""
-
-    async def get_one(self, id: int) -> Product | None:
-        return await self.repo.get_by_id(id)
-
-    async def get_all(self) -> list[Product]:
+    async def get_one(self, id: int) -> ModelT | None:
+            return await self.repo.get_by_id(id)
+    
+    async def get_all(self) -> list[ModelT]:
         return await self.repo.get_all()
 
-    async def create(self, payload: ProductCreate) -> Product:
+    async def create(self, payload: ModelT) -> ModelT:
         new_product = await self.repo.create(payload)
 
         await self.repo.get_db_session.commit()
@@ -34,14 +35,14 @@ class ProductService(BaseService, IService):
 
         return new_product
 
-    async def update(self, id: int, update_model: ProductUpdate) -> Product | None:
+    async def update(self, id: int, update_model: ModelT) -> ModelT | None:
         product = await self.get_one(id=id)
 
         if not product:
             raise get_404_exception()
 
         product_data = update_model.model_dump(exclude_unset=True)
-        updated_product = await self.repo.update(id=product.id, data=product_data)
+        updated_product = await self.repo.update(id=id, data=product_data) # TODO: check id column
 
         await self.repo.get_db_session.commit()
         await self.repo.get_db_session.refresh(updated_product)
@@ -56,27 +57,3 @@ class ProductService(BaseService, IService):
 
         await self.repo.get_db_session.commit()
         return True
-
-
-class CategoryService(BaseService, IService):
-    """Реализует контракт IService. Сервис для работы с моделью категорий"""
-    
-    async def get_one(self, id: int) -> Category | None:
-        return await self.repo.get_by_id(id)
-
-    async def create(self, payload: CategoryReadOrCreate) -> Category: 
-        new_category = await self.repo.create(payload)
-
-        await self.repo.get_db_session.commit()
-        await self.repo.get_db_session.refresh(new_category)
-
-        return new_category
-
-    async def get_all(self) -> list[Category]:
-        ...
-
-    async def update(self, id: int, update_model: Category) -> Category | None:
-        ...
-
-    async def delete(self, id: int) -> bool:
-        ...

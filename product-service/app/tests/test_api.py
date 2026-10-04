@@ -4,7 +4,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from conftest import client, db_session, create_new_product, mock_product_data, get_id_created_product
 from database.models import Product
-from repositories.repository import ProductRepository
+from repositories.repository import SQLRepository
 
 
 async def test_create_product(client: AsyncClient, create_new_product):
@@ -35,7 +35,7 @@ async def test_update_product(
         client: AsyncClient, db_session: AsyncSession, 
         create_new_product, get_id_created_product, mock_product_data):
 
-    repo = ProductRepository(db_session)
+    repo = SQLRepository(Product, Product.id, db_session)
     res = await repo.update(id=get_id_created_product, data={"title": "Новый"})
 
     assert res.title != mock_product_data["title"]

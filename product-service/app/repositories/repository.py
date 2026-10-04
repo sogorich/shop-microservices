@@ -1,76 +1,58 @@
-from typing import Any
+from typing import Any, Type, Generic
 
 from sqlmodel import select, update, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
-
-from database.schemas import CategoryReadOrCreate, ProductCreate
-from database.models import Category, Product
+from database.generics import ModelT
 
 from .interfaces import IRepository
 
 
-class BaseRepository:  
-    """Базовый репозиторий. Реализует основные атрибуты для всех репозиториев"""
-    def __init__(self, db_session: AsyncSession) -> None:
+class SQLRepository(IRepository, Generic[ModelT]):  
+    """Основной репозиторий для работы с базой данных"""
+    def __init__(self, model: Type[ModelT], model_instance_id: int, db_session: AsyncSession) -> None:
+        self._model = model
+        self._model_instance_id = model_instance_id
         self._db_session = db_session
 
     @property
     def get_db_session(self) -> AsyncSession:
         return self._db_session
 
+    @property
+    def get_model(self) -> Type[ModelT]:
+        return self._model
 
-class CategoryRepository(BaseRepository, IRepository):
-    """Реализация контракт IRepository. Репозиторий категорий для работы с базой данных"""
-    async def get_by_id(self, id: int) -> Category | None:
-        query = await self.get_db_session.exec(select(Category).where(Category.id == id))
-        return query.first()
+    @property
+    def get_model_instance_id(self) -> int:
+        return self._model_instance_id
 
-    async def create(self, payload: CategoryReadOrCreate) -> Category:
-        new_category = Category(**payload.model_dump())
-        self.get_db_session.add(new_category)
+    async def get_by_id(self, id: int) -> ModelT | None:
+        return await self.get_db_session.get(self.get_model, id)
 
-        return new_category
-    
-    async def get_all(self) -> list[Category]:
-        ...
-    
-    async def update(self, id: int, data: dict[str, Any]) -> Category:
-        ...
-
-    async def delete(self, id: int) -> bool:
-        ...
-
-
-class ProductRepository(BaseRepository, IRepository):
-    """Реализация контракт IRepository. Репозиторий товаров для работы с базой данных"""
-    async def get_by_id(self, id: int) -> Product | None:
-        query = await self.get_db_session.exec(select(Product).where(Product.id == id))
-        return query.first()
-
-    async def get_all(self) -> list[Product]:
-        query = await self.get_db_session.exec(select(Product))
+    async def get_all(self) -> list[ModelT]:
+        query = await self.get_db_session.exec(select(self.get_model))
         return list(query.all())
     
-    async def create(self, payload: ProductCreate) -> Product:
-        new_product = Product(**payload.model_dump())
+    async def create(self, payload: ModelT) -> ModelT:
+        new_product = self.get_model(**payload.model_dump())
         self.get_db_session.add(new_product)
 
         return new_product
     
-    async def update(self, id: int, data: dict[str, Any]) -> Product:
-        statement = update(Product)\
-            .where(and_(Product.id == id)).\
+    async def update(self, id: int, data: dict[str, Any]) -> ModelT:
+        statement = update(self.get_model)\
+            .where(and_(self.get_model_instance_id == id)).\
                 values(**data).\
-                    returning(Product)
+                    returning(self.get_model)
         
         updated_object = await self.get_db_session.exec(statement)
         return updated_object.scalars().one()
 
     async def delete(self, id: int) -> bool:
-        product = await self.get_by_id(id)
+        model_instance = await self.get_by_id(id)
 
-        if product:
-            await self.get_db_session.delete(product)
+        if model_instance:
+            await self.get_db_session.delete(model_instance)
             return True
 
         return False
