@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, Path, HTTPException, status
+from fastapi import APIRouter, Body, Depends, Path, status
 from fastapi.responses import JSONResponse
 
 from database.models import Category, Product
 from database.schemas import CategoryReadOrCreate, ProductCreate, ProductRead, ProductUpdate
 
 from services.service import ORMService
+from services.utils import get_404_exception
 from .dependencies import get_category_service, get_product_service
 
 
@@ -58,9 +59,7 @@ async def get_product_by_id(
     product = await product_service.get_one(product_id)
 
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail={"message": "Нет данных!"})
+        raise get_404_exception()
 
     return product
 
@@ -74,9 +73,7 @@ async def get_category_by_id(
     category = await category_service.get_one(category_id)
 
     if not category:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail={"message": "Нет данных!"})
+        raise get_404_exception()
 
     return category
 
