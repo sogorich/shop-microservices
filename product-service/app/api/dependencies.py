@@ -1,11 +1,11 @@
 from typing import Annotated
 from fastapi import Depends
 
-from services.service import ORMService
-from repositories.repository import SQLRepository
+from app.services.service import ORMService
+from app.repositories.repository import SQLRepository
 
-from database.database import get_session
-from database.models import Category, Product
+from app.database.database import get_session
+from app.database.models import Category, Product
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 

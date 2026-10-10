@@ -2,9 +2,9 @@ from typing import Any, Type, Generic
 
 from sqlmodel import select, update, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from database.generics import ModelT
+from app.database.generics import ModelT
 
-from .interfaces import IRepository
+from app.repositories.interfaces import IRepository
 
 
 class SQLRepository(IRepository, Generic[ModelT]):  

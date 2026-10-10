@@ -3,8 +3,8 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from conftest import client, db_session, create_new_product, mock_product_data, get_id_created_product
-from database.models import Product
-from repositories.repository import SQLRepository
+from app.database.models import Product
+from app.repositories.repository import SQLRepository
 
 
 async def test_create_product(client: AsyncClient, create_new_product):

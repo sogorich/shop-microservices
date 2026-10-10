@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Generic
 
-from database.generics import ModelT
+from app.database.generics import ModelT
 
 
 class IService(ABC, Generic[ModelT]):

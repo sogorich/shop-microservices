@@ -3,12 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, Path, status
 from fastapi.responses import JSONResponse
 
-from database.models import Category, Product
-from database.schemas import CategoryReadOrCreate, ProductCreate, ProductRead, ProductUpdate
+from app.database.models import Category, Product
+from app.database.schemas import CategoryReadOrCreate, ProductCreate, ProductRead, ProductUpdate
 
-from services.service import ORMService
-from services.utils import get_404_exception
-from .dependencies import get_category_service, get_product_service
+from app.services.service import ORMService
+from app.services.utils import get_404_exception
+from app.api.dependencies import get_category_service, get_product_service
 
 
 router = APIRouter(prefix="/api", tags=["Микросервис товаров и категорий"])

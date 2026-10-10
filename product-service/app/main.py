@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-from config import settings
 
-from api.endpoints import router
+from app.config import settings
+from app.api.endpoints import router
 
 
 app = FastAPI(
     title=settings.project_name,
     debug=settings.debug,
-    summary=settings.summary,
+    summary=settings.summary
 )
 
 

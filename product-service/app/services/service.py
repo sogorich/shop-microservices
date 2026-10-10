@@ -1,10 +1,10 @@
 from typing import Generic, Type
 
-from .interfaces import IService
-from .utils import get_404_exception
+from app.services.interfaces import IService
+from app.services.utils import get_404_exception
 
-from database.generics import ModelT
-from repositories.interfaces import IRepository
+from app.database.generics import ModelT
+from app.repositories.interfaces import IRepository
 
 
 class ORMService(IService, Generic[ModelT]):

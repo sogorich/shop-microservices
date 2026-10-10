@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic
 
-from database.generics import ModelT
+from app.database.generics import ModelT
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 

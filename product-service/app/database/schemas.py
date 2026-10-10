@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field
-from .models import Category
+from app.database.models import Category
 
 
 class ProductRead(SQLModel):
