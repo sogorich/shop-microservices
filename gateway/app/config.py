@@ -5,7 +5,8 @@ from pathlib import Path
 class Settings(BaseSettings):
 
     services: dict = {
-        "products": "http://product-service:8001"
+        "products": "http://product-service:8001",
+        "orders": "http://order-service:8002"
     }
 
     request_timeout: float = 30.0
