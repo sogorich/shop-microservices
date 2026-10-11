@@ -1,48 +1,40 @@
 import httpx
 
-from fastapi import APIRouter, Request, Response, HTTPException
+from fastapi import APIRouter, Request, Response, HTTPException, status
 from app.config import settings
+from app.utils import exclude_headers
 
 
 router = APIRouter()
-client = httpx.AsyncClient(timeout=settings.request_timeout)
-METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
 
-@router.api_route("/{service}", methods=METHODS)
-@router.api_route("/{service}/", methods=METHODS)
-@router.api_route("/{service}/{path:path}", methods=METHODS)
+@router.api_route("/{service}/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 async def proxy(service: str, path: str, request: Request):
 
     base_url = settings.services.get(service)
 
     if not base_url:
-        raise HTTPException(404, f"Unknown serivce {service}")
+        raise HTTPException(status.HTTP_404_NOT_FOUND, f"Unknown serivce {service}")
 
     url = f"{base_url}/{path}"
+
     if request.url.query:
         url += f"?{request.url.query}"
 
-    headers = {
-        k: v for k, v in request.headers.items()
-        if k.lower() not in {"host", "content-length", "connection"}
-    }
-
+    headers = exclude_headers(request, {"host", "content-length", "connection"})
     body = await request.body()
 
-    try:
-        upstream = await client.request(request.method, url, headers=headers, content=body)
+    async with httpx.AsyncClient(timeout=settings.request_timeout) as client:
+        try:
+            upstream = await client.request(request.method, url, headers=headers, content=body)
+            response_headers = exclude_headers(upstream, {"content-encoding", "transfer-encoding", "connection"})
 
-    except httpx.RequestError as e:
-        raise HTTPException(502, f"Bad gateway {e}")
+            return Response(
+                content=upstream.content,
+                status_code=upstream.status_code,
+                headers=response_headers,
+                media_type=upstream.headers.get("content-type")
+            )
 
-    response_headers = {
-        k: v for k, v in upstream.headers.items()
-        if k.lower() not in {"content-encoding", "transfer-encoding", "connection"}
-    }
-    return Response(
-        content=upstream.content,
-        status_code=upstream.status_code,
-        headers=response_headers,
-        media_type=upstream.headers.get("content-type")
-    )
+        except httpx.RequestError as e:
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"Bad gateway {e}")
