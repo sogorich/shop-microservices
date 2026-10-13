@@ -4,7 +4,7 @@ from sqlmodel import SQLModel, Field, Relationship
 class Order(SQLModel, table=True):
     __tablename__ = "orders" # type: ignore
 
-    id: int = Field(primary_key=True)
+    id: int | None = Field(primary_key=True, default=None)
     user_id: int
 
     products: list[ProductInOrder] = Relationship(back_populates="order", cascade_delete=True)
@@ -13,7 +13,7 @@ class Order(SQLModel, table=True):
 class ProductInOrder(SQLModel, table=True):
     __tablename__ = "products_in_order" # type: ignore
 
-    id: int = Field(primary_key=True)
+    id: int | None = Field(primary_key=True, default=None)
 
     product_id: int
     product_title: str

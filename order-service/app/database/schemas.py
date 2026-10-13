@@ -1,10 +1,6 @@
 from sqlmodel import SQLModel
 
 
-class OrderCreate(SQLModel):
-    user_id: int
-
-
 class OrderRead(SQLModel):
     products: list[ProductInOrderAdd]
 
