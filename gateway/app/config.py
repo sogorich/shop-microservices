@@ -6,7 +6,8 @@ class Settings(BaseSettings):
 
     services: dict = {
         "products": "http://product-service:8001",
-        "orders": "http://order-service:8002"
+        "orders": "http://order-service:8002",
+        "deals": "http://deal-service:8003"
     }
 
     request_timeout: float = 30.0

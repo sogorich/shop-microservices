@@ -87,10 +87,51 @@ services:
       - ./order-service/app/.env
     command: ["alembic", "-c", "/app/app/alembic.ini", "upgrade", "head"]
     depends_on:
-      product-service-db:
+      order-service-db:
         condition: service_healthy
     restart: "no"
+
+  deal-service:
+    build: ./deal-service
+    restart: unless-stopped
+    env_file:
+      - ./deal-service/app/.env
+    expose: ["8003"]
+    depends_on:
+      deal-service-db:
+        condition: service_healthy
+      deal-service-migrations:
+        condition: service_completed_successfully
+
+  deal-service-db:
+    image: postgres:18.6
+    container_name: deal-service-db
+    restart: unless-stopped
+    ports:
+      - 5434:5432
+    env_file:
+      - ./deal-service/app/.env
+    volumes:
+      - deal-service-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  deal-service-migrations:
+    build: ./deal-service
+    working_dir: /app
+    env_file:
+      - ./deal-service/app/.env
+    command: ["tortoise", "migrate"]
+    depends_on:
+      deal-service-db:
+        condition: service_healthy
+    restart: "no"
+
 
 volumes:
   product-service-db-data:
   order-service-db-data:
+  deal-service-db-data:
