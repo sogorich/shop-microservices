@@ -35,6 +35,8 @@
 shop/
 ├── gateway/          # 🚪 API Gateway
 ├── product-service/      # 📦 Product Service
+├── order-service/      # 🛒 Order Service
+├── deal-service/      # 🤝 Deal Service
 ├── docker-compose.yml    # 🐳 Оркестрация сервисов
 └── README.md
 ```
