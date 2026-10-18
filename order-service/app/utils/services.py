@@ -1,9 +1,12 @@
 from typing import Sequence
+import uuid, json
+
+from aiokafka import AIOKafkaProducer
 
 from app.database.schemas import ProductInOrderAdd
 from app.database.models import Order, ProductInOrder
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Request, status
 
 from sqlalchemy.orm import selectinload
 from sqlmodel import select
@@ -11,10 +14,13 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 async def create_new_order_for_user(
+        request: Request,
         user_id: int, 
         products: list[ProductInOrderAdd],
         db_session: AsyncSession) -> dict[str, str]:
     """Создание нового заказа для пользователя"""
+
+    kafka_producer: AIOKafkaProducer = request.app.state.kafka_producer
 
     serialize_models = [ProductInOrder(**prod.model_dump()) for prod in products]
     new_order = Order(user_id=user_id, products=serialize_models)
@@ -23,6 +29,12 @@ async def create_new_order_for_user(
     await db_session.commit()
     await db_session.refresh(new_order)
 
+    data = {
+        "id": str(uuid.uuid4()),
+        "payload": new_order.model_dump_json()
+    }
+
+    await kafka_producer.send("order.created", json.dumps(data).encode())
     return {"message": f"Создан новый заказ для пользователя {user_id}"}
 
 

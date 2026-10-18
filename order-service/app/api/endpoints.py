@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, Path
+from fastapi import APIRouter, Body, Depends, Path, Request
 from typing import Annotated, Sequence
 
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -14,11 +14,13 @@ router = APIRouter(prefix="/api", tags=["Сервис заказов"])
 
 @router.post("/orders")
 async def create_order(
+    request: Request,
     db_session: Annotated[AsyncSession, Depends(get_session)],
     payload_product_in_order: Annotated[list[ProductInOrderAdd], Body()]
 ) -> dict[str, str]:
     
     return await create_new_order_for_user(
+        request,
         user_id=1, 
         products=payload_product_in_order, 
         db_session=db_session
