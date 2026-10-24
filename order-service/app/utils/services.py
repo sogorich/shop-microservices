@@ -31,10 +31,11 @@ async def create_new_order_for_user(
 
     data = {
         "id": str(uuid.uuid4()),
-        "payload": new_order.model_dump_json()
+        "payload": new_order.model_dump(),
+        "products": [prod.model_dump() for prod in products]
     }
 
-    await kafka_producer.send("order.created", json.dumps(data).encode())
+    await kafka_producer.send("orders.created", json.dumps(data).encode())
     return {"message": f"Создан новый заказ для пользователя {user_id}"}
 
 

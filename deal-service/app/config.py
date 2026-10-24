@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     postgres_password: str = ""
     postgres_db: str = ""
     tortoise_orm: str = ""
+    vk_token: str = ""
 
     model_config = SettingsConfigDict(env_file=Path(__file__).parent / ".env")
 
