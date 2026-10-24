@@ -1,6 +1,6 @@
 # 🛍️ Mini-Shop
 
-> **Небольшой магазин, построенный на микросервисах**
+> **Небольшой магазин, построенный на микросервисах** <br />
 > _Выпущен инициативой «Проект 11»_
 
 ---
@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="postgres"/>
   <img src="https://img.shields.io/badge/Alembic-6BA81E?style=for-the-badge&logo=python&logoColor=white" alt="alembic"/>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="docker"/>
+  <img src="https://img.shields.io/badge/apachekafka-%23231F20.svg?style=for-the-badge&logo=apachekafka&logoColor=white" alt="kafka"/>
 </p>
 
 ---
@@ -37,6 +38,7 @@ shop/
 ├── product-service/      # 📦 Product Service
 ├── order-service/      # 🛒 Order Service
 ├── deal-service/      # 🤝 Deal Service
+├── nginx/    # 🌐 Nginx config
 ├── docker-compose.yml    # 🐳 Оркестрация сервисов
 └── README.md
 ```
